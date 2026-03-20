@@ -15,20 +15,29 @@ CURRENCY_CODES = {
     "JPY": 392,
 }
 
-def find_rates(code_a, code_b):
-    
-    print(rates)
+def find_rate(rates, code_a, code_b):
+    return rates.get((code_a, code_b))
 
 def get_rates(env):
     if env == "dev":
         with open('rates.json', 'r', encoding='utf-8') as f:
-            data = f.read() 
+            data = json.load(f)
     elif env == "prod":
         response = requests.get(CURRENCY_API)
         data = response.json()
     
-    return data
+    return {
+        (item["currencyCodeA"], item["currencyCodeB"]): 
+        item.get("rateBuy") or item.get("rateSell") or item.get("rateCross")
+        for item in data
+    }
             
-rates = get_rates('dev') 
+rates = get_rates('dev')
 
-USD_UAH = find_rates(CURRENCY_CODES["UAH"], CURRENCY_CODES["USD"])
+usd_uah = find_rate(
+    rates,
+    CURRENCY_CODES["USD"],
+    CURRENCY_CODES["UAH"]
+)
+
+print("USD → UAH:", usd_uah)

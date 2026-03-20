@@ -1,4 +1,9 @@
 import requests
+import time
+import json
+
+ENV = "prod"
+ENV = "dev"
 
 CURRENCY_API="https://api.monobank.ua/bank/currency"
 
@@ -10,23 +15,20 @@ CURRENCY_CODES = {
     "JPY": 392,
 }
 
-def get_currency():
-    response = requests.get(CURRENCY_API)
-    data = response.json()
+def find_rates(code_a, code_b):
     
-    for item in data:        
-        rate = item.get("rateBuy") or item.get("rateCross")
-        
-        if item['currencyCodeA'] == CURRENCY_CODES['USD']:
-            print(f"USD: {rate}")
+    print(rates)
+
+def get_rates(env):
+    if env == "dev":
+        with open('rates.json', 'r', encoding='utf-8') as f:
+            data = f.read() 
+    elif env == "prod":
+        response = requests.get(CURRENCY_API)
+        data = response.json()
+    
+    return data
             
-        elif item['currencyCodeA'] == CURRENCY_CODES['EUR']:
-            print(f"EUR: {rate}")
-            
-        elif item['currencyCodeA'] == CURRENCY_CODES['GBP']:
-            print(f"GBP: {rate}")
-            
-        elif item['currencyCodeA'] == CURRENCY_CODES['JPY']:
-            print(f"JPY: {rate}")
-            
-get_currency()
+rates = get_rates('dev') 
+
+USD_UAH = find_rates(CURRENCY_CODES["UAH"], CURRENCY_CODES["USD"])
